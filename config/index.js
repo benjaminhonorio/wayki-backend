@@ -6,7 +6,10 @@ const MONGODB_URI =
     ? process.env.TEST_MONGODB_URI
     : process.env.MONGODB_URI;
 
+const SENGRID_API_KEY = process.env.SENGRID_API_KEY;
+
 module.exports = {
   MONGODB_URI,
   PORT,
+  SENGRID_API_KEY,
 };

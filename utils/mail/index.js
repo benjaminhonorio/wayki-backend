@@ -1,14 +1,11 @@
 const nodemailer = require("nodemailer");
 const sgTransport = require("nodemailer-sendgrid");
+const config = require("../../config");
 
 exports.run = async (username) => {
   var options = {
-    apiKey:
-      "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",
+    apiKey: config.SENGRID_API_KEY,
   };
-
-  // Sengrid Secret API Key
-  // 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
 
   let transporter = nodemailer.createTransport(sgTransport(options));
 

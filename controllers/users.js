@@ -3,7 +3,7 @@
 
 const usersRouter = require("express").Router();
 const User = require("../models/user");
-const { run } = require("../mail/index");
+const { run } = require("../utils/mail");
 
 usersRouter.get("/", function (req, res) {
   User.find({}).then((users) => res.json(users));
