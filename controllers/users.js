@@ -1,13 +1,9 @@
-// Check  https://fullstackopen.com/en/part4/user_administration
-// Check branches named part4* here -> https://github.com/fullstack-hy2020/part3-notes-backend
-
 const usersRouter = require("express").Router();
 const User = require("../models/user");
-const { run } = require("../utils/mail");
+// const { run } = require("../utils/mail");
 
 usersRouter.get("/", function (req, res) {
   User.find({}).then((users) => res.json(users));
-  // res.json({ hola: 'mundo' });
 });
 
 usersRouter.post("/", async function (req, res) {
@@ -18,18 +14,13 @@ usersRouter.post("/", async function (req, res) {
   }
 
   const user = new User({
-    username: body.username || "No-name",
-    pwd: body.pwd,
+    username: body.username,
+    password: body.password,
   });
 
   const savedUser = await user.save();
-  run(body.username);
+  // run(body.username);
   res.status(201).json(savedUser);
-
-  // user.save().then((savedUser) => {
-  //   res.json(savedUser);
-  // });
-  // res.json({ hola: 'mundo' });
 });
 
 module.exports = usersRouter;

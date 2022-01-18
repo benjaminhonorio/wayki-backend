@@ -56,6 +56,6 @@ Content-Type: application/json
         "descripcion": "voluptatem sed natus perspiciatis qui enim aut ut ipsum repellat occaecati eveniet aliquam accusamus ipsum delectus corrupti veniam inventore tenetur est totam voluptas culpa nihil eius et dolore molestiae laborum quis quos ut eos dolorem occaecati alias sed voluptates hic delectus velit consequatur",
         "foto_principal": 0,
         "fotos": [
-            "https://images.dog.ceo/breeds/basenji/n02110806_6035.jpg"
+            "https://cdn2.thecatapi.com/images/bjh.jpg"
         ]
 }

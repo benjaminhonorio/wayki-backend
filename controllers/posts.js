@@ -18,7 +18,6 @@ postsRouter.get("/:id", async (req, res, next) => {
 
 postsRouter.post("/", async (req, res, next) => {
   const body = req.body;
-  // Hacer el objeto flat para actualziar mas facilmente o buscar alternativas para actualizar objetos nested como lodash supongo
   const post = new Post({
     titulo: body.titulo,
     tipo: body.tipo,
@@ -57,8 +56,8 @@ postsRouter.put("/:id", async (req, res, next) => {
     descripcion: body.descripcion,
     foto_principal: body.foto_principal,
     fotos: [...body.fotos],
-    hidden: body.hidden,
-    favoritos: [...body.favoritos],
+    // hidden: body.hidden,
+    // favoritos: [...body.favoritos],
   };
   const updatedPost = await Post.findByIdAndUpdate(req.params.id, post, {
     new: true,
