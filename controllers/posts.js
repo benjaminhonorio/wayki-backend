@@ -1,65 +1,70 @@
 const Post = require("../models/post");
 require("express-async-errors"); // no need to use try-catch in every async function with express
 
-exports.getAllPosts = async (req, res, next) => {
-  const posts = await Post.find({});
-  res.json(posts);
+exports.id = async (req, res, next) => {
+  const { params = {} } = req;
+  const { id = "" } = params;
+  const data = await Post.findById(id);
+  if (!data) {
+    const message = `${Post.modelName} not found`;
+    next({ message, status: 404 });
+  } else {
+    req.data = data;
+    next();
+  }
 };
-exports.createPost = async (req, res, next) => {
+
+exports.all = async (req, res, next) => {
+  const data = await Post.find({});
+  res.json({ data });
+};
+
+exports.create = async (req, res, next) => {
   const { body = {} } = req;
   const post = new Post({
     titulo: body.titulo,
     tipo: body.tipo,
     etiquetas: [...body.etiquetas],
-    caracteristicas: {
-      ...body.caracteristicas,
-    },
-    ubicacion: {
-      ...body.ubicacion,
-    },
+    caracteristicas: { ...body.caracteristicas },
+    ubicacion: { ...body.ubicacion },
     descripcion: body.descripcion,
-    foto_principal: body.foto_principal,
+    foto_principal: Number(body.foto_principal),
     fotos: [...body.fotos],
   });
-  const savedPost = await post.save();
-  res.status(201).json(savedPost);
+  const data = await post.save();
+  res.status(201).json({ data });
 };
 
-exports.getPost = async (req, res, next) => {
-  const { params = {} } = req;
-  const { id = "" } = params;
-  const post = await Post.findById(id);
-  if (post) {
-    res.json(post);
-  } else {
-    res.status(404).end();
-  }
+exports.read = async (req, res, next) => {
+  const { data = {} } = req;
+  res.json({ data });
 };
-exports.deletePost = async (req, res, next) => {
-  await Post.findByIdAndRemove(req.params.id);
-  res.status(204).end();
+
+exports.delete = async (req, res, next) => {
+  const { data: doc = {} } = req;
+  const data = await doc.remove();
+  res.json({ data });
 };
-exports.updatePost = async (req, res, next) => {
-  const { body = {}, params = {}, query = {} } = req;
+
+exports.update = async (req, res, next) => {
+  const { data: doc = {}, body = {} } = req;
+  const { favoritos, promocionado, hidden } = doc; // estas propiedades del doc cuando se crea
   const post = {
     titulo: body.titulo,
     tipo: body.tipo,
-    etiquetas: [...body.etiquetas],
-    caracteristicas: {
-      ...body.caracteristicas,
-    },
-    ubicacion: {
-      ...body.ubicacion,
-    },
+    etiquetas: body.etiquetas != undefined ? [...body.etiquetas] : [],
+    caracteristicas:
+      body.caracteristicas != undefined ? { ...body.caracteristicas } : {},
+    ubicacion: body.ubicacion != undefined ? { ...body.ubicacion } : {},
     descripcion: body.descripcion,
-    foto_principal: body.foto_principal,
-    fotos: [...body.fotos],
-    // to think about
-    // hidden: body.hidden,
-    // favoritos: [...body.favoritos],
+    foto_principal: Number(body.foto_principal),
+    fotos: body.fotos != undefined ? [...body.fotos] : [],
+    favoritos,
+    hidden,
+    promocionado,
   };
-  const updatedPost = await Post.findByIdAndUpdate(params.id, post, {
+  const data = await Post.findByIdAndUpdate(req.params.id, post, {
     new: true,
   });
-  res.json({ data: body, query, params });
+  res.json({ data });
 };

@@ -17,16 +17,19 @@ const unknownEndpoint = (req, res, next) => {
 
 // Handles errors
 const errorHandler = (error, req, res, next) => {
-  const { status = 500, message = "", name = "" } = error;
-  logger.error({ message });
+  const { message = "", name = "" } = error;
+  let { status = 500 } = error;
 
   if (name === "CastError") {
-    return res.status(400).json({ message: "Error. malformatted id" }); // overwrite error message from express
+    logger.warn({ message });
+    return res.status(400).json({ message });
   } else if (name === "ValidationError") {
+    logger.warn({ message });
     return res.status(400).json({ message });
   } else {
-    return res.status(status).json({ message });
+    logger.error({ message });
   }
+  res.status(status).json({ message, error });
 };
 
 module.exports = {

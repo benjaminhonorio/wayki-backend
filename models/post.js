@@ -1,32 +1,26 @@
 const mongoose = require("mongoose");
 
 const postFields = {
-  titulo: String,
-  tipo: String,
-  etiquetas: [String],
+  titulo: { type: String, required: true, trim: true, maxLength: 255 },
+  tipo: { type: String, required: true, trim: true, maxLength: 25 },
+  descripcion: { type: String, required: true, trim: true, maxLength: 255 },
+  foto_principal: { type: Number, default: 0 },
   caracteristicas: {
-    edad: String,
-    color: String,
-    sexo: String,
-    tamaño: String,
+    edad: { type: String, required: true, trim: true, maxLength: 25 },
+    color: { type: String, required: true, trim: true, maxLength: 25 },
+    sexo: { type: String, required: true, maxLength: 1 },
+    tamaño: { type: String, required: true, maxLength: 2 },
   },
   ubicacion: {
-    referencia: String,
-    lat: Number,
-    lng: Number,
+    referencia: { type: String, required: true, trim: true, maxLength: 255 },
+    lat: { type: Number, required: true },
+    lng: { type: Number, required: true },
   },
-  descripcion: String,
-  foto_principal: Number,
+  etiquetas: [{ type: String, trim: true, maxLength: 50 }],
   fotos: [String],
-  hidden: {
-    type: Boolean,
-    default: false,
-  },
   favoritos: [String],
-  promocionado: {
-    type: Boolean,
-    default: false,
-  },
+  hidden: { type: Boolean, default: false },
+  promocionado: { type: Boolean, default: false },
 };
 
 const postSchema = new mongoose.Schema(postFields, { timestamps: true });
@@ -40,6 +34,3 @@ postSchema.set("toJSON", {
 });
 
 module.exports = mongoose.model("Post", postSchema);
-
-// Schema for arrays don't need default []
-// https://mongoosejs.com/docs/schematypes.html#arrays
