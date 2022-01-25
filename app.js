@@ -1,12 +1,7 @@
 const config = require("./config");
 const cors = require("cors");
-const {
-  requestId,
-  requestLogger,
-  unknownEndpoint,
-  errorHandler,
-} = require("./middleware");
-const logger = require("./utils/logger"); // prints to console (simple custom alternative to morgan)
+const { requestId, unknownEndpoint, errorHandler } = require("./middleware");
+const { logger, requestLogger } = require("./utils/logger"); // prints to console (simple custom alternative to morgan)
 const api = require("./routes");
 const usersRouter = require("./controllers/users");
 const express = require("express");
