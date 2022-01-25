@@ -1,6 +1,6 @@
 const winston = require("winston");
 const morgan = require("morgan");
-const { stripFinalNewline } = require("./strip-final-newline");
+const { stripFinalNewline } = require("./strip-newline");
 
 const logger = winston.createLogger({
   format: winston.format.simple(),
