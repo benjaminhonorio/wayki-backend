@@ -23,6 +23,10 @@ const postFields = {
     default: false,
   },
   favoritos: [String],
+  promocionado: {
+    type: Boolean,
+    default: false,
+  },
 };
 
 const postSchema = new mongoose.Schema(postFields, { timestamps: true });
