@@ -1,26 +1,107 @@
 const mongoose = require("mongoose");
 
 const postFields = {
-  titulo: { type: String, required: true, trim: true, maxLength: 255 },
-  tipo: { type: String, required: true, trim: true, maxLength: 25 },
-  descripcion: { type: String, required: true, trim: true, maxLength: 255 },
-  foto_principal: { type: Number, default: 0 },
-  caracteristicas: {
-    edad: { type: String, required: true, trim: true, maxLength: 25 },
-    color: { type: String, required: true, trim: true, maxLength: 25 },
-    sexo: { type: String, required: true, maxLength: 1 },
-    tamaño: { type: String, required: true, maxLength: 2 },
+  title: {
+    type: String,
+    required: true,
+    trim: true,
+    maxLength: 255,
   },
-  ubicacion: {
-    referencia: { type: String, required: true, trim: true, maxLength: 255 },
-    lat: { type: Number, required: true },
-    lng: { type: Number, required: true },
+  type: {
+    type: String,
+    required: true,
+    trim: true,
+    maxLength: 25,
   },
-  etiquetas: [{ type: String, trim: true, maxLength: 50 }],
-  fotos: [String],
-  favoritos: [String],
-  hidden: { type: Boolean, default: false },
-  promocionado: { type: Boolean, default: false },
+  description: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  mainPhoto: {
+    type: Number,
+    default: 0,
+  },
+  characteristics: {
+    name: {
+      type: String,
+      trim: true,
+      maxLength: 25,
+      default: "",
+    },
+    age: {
+      type: Number,
+      required: true,
+      min: 0,
+      max: 99,
+    },
+    color: {
+      type: String,
+      required: true,
+      trim: true,
+      maxLength: 25,
+    },
+    sex: {
+      type: String,
+      required: true,
+      maxLength: 1,
+      enum: ["M", "H"],
+    },
+    size: {
+      type: String,
+      required: true,
+      maxLength: 2,
+      enum: ["XS", "S", "M", "L", "XL"],
+    },
+  },
+  location: {
+    address: {
+      type: String,
+      default: "",
+    },
+    reference: {
+      type: String,
+      required: true,
+      trim: true,
+      maxLength: 255,
+    },
+    type: {
+      type: String,
+      enum: ["Point"],
+      default: "Point",
+    },
+    coordinates: {
+      type: [
+        { type: Number, required: true, min: -180, max: 180 },
+        { type: Number, required: true, min: -90, max: 90 },
+      ],
+      index: "2dsphere",
+      validate: {
+        validator: function (arr) {
+          return arr.length === 2;
+        },
+        message: "You must provide only two coordinates.",
+      },
+      required: true,
+    },
+  },
+  tags: [
+    {
+      type: String,
+      trim: true,
+      maxLength: 50,
+    },
+  ],
+  photos: [String],
+  favorites: [String],
+  hidden: {
+    type: Boolean,
+    default: false,
+  },
+  promoted: {
+    type: Boolean,
+    default: false,
+  },
 };
 
 const postSchema = new mongoose.Schema(postFields, { timestamps: true });
