@@ -1,5 +1,5 @@
 require("dotenv").config();
-const usersRouter = require("express").Router();
+require("express-async-errors");
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -17,20 +17,17 @@ const schemaLogin = Joi.object({
 });
 // const { run } = require("../utils/mail");
 
-const authRoutes = require("../routes/auth");
-
-// usersRouter.use("/", authRoutes);
-
-usersRouter.get("/", function (req, res) {
-  User.find({}).then((users) => res.json(users));
-});
+exports.all = async (req, res, next) => {
+  const dataUsers = await User.find({});
+  res.json({ dataUsers });
+};
 
 // function generateAccessToken(user) {
 //   const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
 //   return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "10m" });
 // }
 
-usersRouter.post("/signup", async function (req, res) {
+exports.createUser = async (req, res, next) => {
   const { error, value } = schemaRegister.validate(req.body);
   if (error) {
     return res.json({ error: true, message: error.details[0].message });
@@ -64,9 +61,9 @@ usersRouter.post("/signup", async function (req, res) {
   } catch (error) {
     return res.json(error);
   }
-});
+};
 
-usersRouter.post("/login", async function (req, res) {
+exports.loginUser = async (req, res, next) => {
   const { error, value } = schemaLogin.validate(req.body);
   if (error) {
     return res.json({ error: true, message: error.details[0].message });
@@ -100,6 +97,4 @@ usersRouter.post("/login", async function (req, res) {
   } catch (e) {
     console.log(e);
   }
-});
-
-module.exports = usersRouter;
+};

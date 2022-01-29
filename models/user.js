@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const userSchema = mongoose.Schema({
+const userFields = {
   username: {
     type: String,
     required: true,
@@ -17,7 +17,9 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-});
+};
+
+const userSchema = new mongoose.Schema(userFields, { timestamps: true });
 
 userSchema.set("toJSON", {
   transform: (document, returnedObject) => {
