@@ -1,68 +1,62 @@
-const postsRouter = require("express").Router();
-const { response } = require("express");
 const Post = require("../models/post");
+require("express-async-errors");
 
-postsRouter.get("/", async (req, res, next) => {
-  const posts = await Post.find({});
-  res.json(posts);
-});
+exports.all = async (req, res, next) => {
+  const data = await Post.find({});
+  res.json({ data });
+};
 
-postsRouter.get("/:id", async (req, res, next) => {
-  const post = await Post.findById(req.params.id);
-  if (post) {
-    res.json(post);
-  } else {
-    res.status(404).end();
-  }
-});
+exports.create = async (req, res, next) => {
+  const { body = {} } = req;
+  const post = new Post(body);
+  const data = await post.save();
+  res.status(201).json({ data });
+};
 
-postsRouter.post("/", async (req, res, next) => {
-  const body = req.body;
-  const post = new Post({
-    titulo: body.titulo,
-    tipo: body.tipo,
-    etiquetas: [...body.etiquetas],
-    caracteristicas: {
-      ...body.caracteristicas,
-    },
-    ubicacion: {
-      ...body.ubicacion,
-    },
-    descripcion: body.descripcion,
-    foto_principal: body.foto_principal,
-    fotos: [...body.fotos],
-  });
-  const savedPost = await post.save();
-  res.status(201).json(savedPost);
-});
+exports.read = async (req, res, next) => {
+  const { params = {} } = req;
+  const data = await Post.findById(params.id);
+  res.json({ data });
+};
 
-postsRouter.delete("/:id", async (req, res, next) => {
-  await Post.findByIdAndRemove(req.params.id);
-  res.status(204).end();
-});
+exports.delete = async (req, res, next) => {
+  const { params = {} } = req;
+  const data = await Post.findByIdAndRemove(params.id);
+  res.json({ data });
+};
 
-postsRouter.put("/:id", async (req, res, next) => {
-  const body = req.body;
-  const post = {
-    titulo: body.titulo,
-    tipo: body.tipo,
-    etiquetas: [...body.etiquetas],
-    caracteristicas: {
-      ...body.caracteristicas,
-    },
-    ubicacion: {
-      ...body.ubicacion,
-    },
-    descripcion: body.descripcion,
-    foto_principal: body.foto_principal,
-    fotos: [...body.fotos],
-    // hidden: body.hidden,
-    // favoritos: [...body.favoritos],
-  };
-  const updatedPost = await Post.findByIdAndUpdate(req.params.id, post, {
+exports.update = async (req, res, next) => {
+  const { params = {}, body = {} } = req;
+  const post = body;
+  if ("hidden" in post) delete post.hidden;
+  if ("promoted" in post) delete post.promoted;
+  const data = await Post.findByIdAndUpdate(params.id, post, {
+    runValidators: true,
     new: true,
   });
-  res.json(updatedPost);
-});
+  res.json({ data });
+};
 
-module.exports = postsRouter;
+// TODO:
+//  only admin can hide or unhide
+exports.updateHidden = async (req, res, next) => {
+  const { params = {}, body = {} } = req;
+  const data = await Post.findByIdAndUpdate(
+    params.id,
+    { hidden: body.hidden },
+    { runValidators: true, new: true }
+  );
+  res.json({ data });
+};
+
+// TODO:
+// a post can be promoted only after paying a small fee
+exports.updatePromoted = async (req, res, next) => {
+  const { params = {}, body = {} } = req;
+  const data = await Post.findByIdAndUpdate(
+    params.id,
+    { promoted: body.promoted },
+    { runValidators: true, new: true }
+  );
+  res.json({ data });
+};

@@ -1,15 +1,25 @@
 const mongoose = require("mongoose");
 
-const userSchema = mongoose.Schema({
+const userFields = {
   username: {
     type: String,
     required: true,
+    min: 6,
+    max: 30,
   },
-  password: {
+  pwd: {
+    type: String,
+    required: true,
+    min: 6,
+    max: 30,
+  },
+  email: {
     type: String,
     required: true,
   },
-});
+};
+
+const userSchema = new mongoose.Schema(userFields, { timestamps: true });
 
 userSchema.set("toJSON", {
   transform: (document, returnedObject) => {
