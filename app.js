@@ -11,11 +11,12 @@ const app = express();
 
 // database connection
 const mongoose = require("mongoose");
+const options = { useNewUrlParser: true, useUnifiedTopology: true };
 
 logger.info("connecting to", config.MONGODB_URI);
 
 mongoose
-  .connect(config.MONGODB_URI)
+  .connect(config.MONGODB_URI, options)
   .then(() => {
     logger.info("connected to MongoDB");
   })
