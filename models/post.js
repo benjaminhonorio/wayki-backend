@@ -30,10 +30,8 @@ const postFields = {
       default: "",
     },
     age: {
-      type: Number,
+      type: String,
       required: true,
-      min: 0,
-      max: 99,
     },
     color: {
       type: String,
