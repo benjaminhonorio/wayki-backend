@@ -5,33 +5,31 @@ POST http://localhost:3002/api/v1/posts
 Content-Type: application/json
 
 {
-    "caracteristicas": {
-        "edad": "2 años",
+    "characteristics": {
+        "age": "2 años",
         "color": "blanco",
-        "sexo": "M",
-        "tamaño": "XL"
+        "sex": "M",
+        "size": "XL"
     },
-    "ubicacion": {
-        "referencia": "Plaza Mayor de Nuevo Chimbote",
-        "lat": -9.122916490721595,
-        "lng": -78.53084177327464
+    "location": {
+        "reference": "Plaza Mayor de Nuevo Chimbote",
+        "coordinates": [-78.52001851957706,-9.127000168554577]
     },
-    "titulo": "Perro labrador perdido",
-    "tipo": "perro",
-    "etiquetas": [
+    "title": "Perro labrador perdido",
+    "type": "perro",
+    "tags": [
         "perro",
         "labrador",
         "ayuda"
     ],
-    "descripcion": "quidem molestiae nostrum voluptas velit error similique debitis et nihil hic et at provident aut quo facilis et quae ullam sint velit et rerum non ipsa iure cupiditate adipisci earum reprehenderit aspernatur veri",
-    "foto_principal": 0,
-    "fotos": [
+    "description": "quidem molestiae nostrum voluptas velit error similique debitis et nihil hic et at provident aut quo facilis et quae ullam sint velit et rerum non ipsa iure cupiditate adipisci earum reprehenderit aspernatur veri",
+    "main_photo": 0,
+    "photos": [
         "https://images.dog.ceo/breeds/bluetick/n02088632_2870.jpg"
     ]
 }
 
-###
-POST http://localhost:3002/api/v1/posts
+### POST http://localhost:3002/api/v1/posts
 Content-Type: application/json
 
 {
