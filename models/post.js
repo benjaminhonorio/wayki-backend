@@ -3,19 +3,19 @@ const mongoose = require("mongoose");
 const postFields = {
   title: {
     type: String,
-    required: true,
+    required: [true, "Por favor indica el titulo"],
     trim: true,
-    maxLength: 255,
+    maxLength: 100,
   },
   type: {
     type: String,
-    required: true,
+    required: [true, "Por favor indica el tipo de mascota"],
     trim: true,
     maxLength: 25,
   },
   description: {
     type: String,
-    required: true,
+    required: [true, "Por favor indica la descripción"],
     trim: true,
   },
   mainPhoto: {
@@ -31,23 +31,23 @@ const postFields = {
     },
     age: {
       type: String,
-      required: true,
+      required: [true, "Por favor indica la edad de la mascota"],
     },
     color: {
       type: String,
-      required: true,
+      required: [true, "Por favor indica el color de la mascota"],
       trim: true,
       maxLength: 25,
     },
     sex: {
       type: String,
-      required: true,
+      required: [true, "Por favor indica el sexo de la mascota"],
       maxLength: 1,
       enum: ["M", "H"],
     },
     size: {
       type: String,
-      required: true,
+      required: [true, "Por favor indica el tamaño de la mascota"],
       maxLength: 2,
       enum: ["XS", "S", "M", "L", "XL"],
     },
@@ -59,7 +59,7 @@ const postFields = {
     },
     reference: {
       type: String,
-      required: true,
+      required: [true, "Por favor indica una referencia de la ubicación"],
       trim: true,
       maxLength: 255,
     },
@@ -78,7 +78,7 @@ const postFields = {
         validator: function (arr) {
           return arr.length === 2;
         },
-        message: "You must provide only two coordinates.",
+        message: "Debes indicar solo dos coordenadas",
       },
       required: true,
     },
@@ -100,6 +100,11 @@ const postFields = {
     type: Boolean,
     default: false,
   },
+  // user: {
+  //   type: mongoose.Types.ObjectId,
+  //   ref: "User",
+  //   required: [true, "Por favor indica el usuario"],
+  // },
 };
 
 const postSchema = new mongoose.Schema(postFields, { timestamps: true });
@@ -112,4 +117,6 @@ postSchema.set("toJSON", {
   },
 });
 
-module.exports = mongoose.model("Post", postSchema);
+const Post = mongoose.model("Post", postSchema);
+
+module.exports = { Post, postFields };

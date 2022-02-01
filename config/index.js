@@ -12,6 +12,23 @@ const config = {
     password: process.env.MONGODB_PASSWORD,
   },
   SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
+  pagination: {
+    limit: 10,
+    skip: 0,
+    page: 1,
+  },
+  sort: {
+    sortBy: {
+      fields: ["createdAt", "updatedAt"],
+      default: "createdAt",
+    },
+    direction: {
+      options: ["asc", "desc"],
+      default: "desc",
+    },
+  },
+  // TODO: add more filter options
+  filter: { options: ["type"] },
 };
 
 module.exports = config;
