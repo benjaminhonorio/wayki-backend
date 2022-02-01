@@ -1,9 +1,26 @@
-const Post = require("../models/post");
+const { Post, postFields } = require("../models/post");
+const {
+  paginationParams,
+  sortParams,
+  sortParamToString,
+  filterOption,
+} = require("../utils");
 require("express-async-errors");
 
 exports.all = async (req, res, next) => {
-  const data = await Post.find({});
-  res.json({ data });
+  const { limit, page, skip } = paginationParams(req.query);
+
+  const { sortBy, direction } = sortParams(req.query, postFields);
+
+  const docs = Post.find(filterOption(req.query))
+    .sort(sortParamToString(sortBy, direction))
+    .skip(skip)
+    .limit(limit);
+  const allData = Post.countDocuments();
+  const response = await Promise.all([docs.exec(), allData.exec()]);
+  const [data, total] = response;
+  const pages = Math.ceil(total / limit);
+  res.json({ data, meta: { limit, skip, total, page, pages } });
 };
 
 exports.create = async (req, res, next) => {
