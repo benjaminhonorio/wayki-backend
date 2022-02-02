@@ -17,6 +17,18 @@ const userFields = {
     type: String,
     required: true,
   },
+  name: {
+    type: String,
+  },
+  number: {
+    type: String,
+  },
+  bio: {
+    type: String,
+  },
+  photo: {
+    type: String,
+  },
 };
 
 const userSchema = new mongoose.Schema(userFields, { timestamps: true });
