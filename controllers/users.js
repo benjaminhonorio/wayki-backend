@@ -98,6 +98,7 @@ exports.loginUser = async (req, res, next) => {
     console.log(e);
   }
 };
+
 exports.updateUser = async (req, res, next) => {
   const body = req.body;
   res.json(body);
@@ -109,6 +110,7 @@ exports.updateUser = async (req, res, next) => {
   ).then((updateUser) => {
     res.json(updateUser);
   });
+
   User.findOneAndUpdate(body.username, {
     ...body,
     number: body.telephone,
@@ -117,4 +119,10 @@ exports.updateUser = async (req, res, next) => {
   }).then((updateUser) => {
     res.json(updateUser);
   });
+};
+
+exports.readUser = async (req, res, next) => {
+  const { params = {} } = req;
+  const data = await User.findById(params.id);
+  res.json({ data });
 };
