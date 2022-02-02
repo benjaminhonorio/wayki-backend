@@ -98,3 +98,23 @@ exports.loginUser = async (req, res, next) => {
     console.log(e);
   }
 };
+exports.updateUser = async (req, res, next) => {
+  const body = req.body;
+  res.json(body);
+
+  User.findByIdAndUpdate(
+    req.params.id,
+    { number: body.telephone, bio: body.bio, name: body.name },
+    { runValidators: true, new: true }
+  ).then((updateUser) => {
+    res.json(updateUser);
+  });
+  User.findOneAndUpdate(body.username, {
+    ...body,
+    number: body.telephone,
+    bio: body.bio,
+    name: body.name,
+  }).then((updateUser) => {
+    res.json(updateUser);
+  });
+};
