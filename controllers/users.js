@@ -89,10 +89,10 @@ exports.loginUser = async (req, res, next) => {
   );
 
   try {
-    console.log("success");
     return res.json({
       token: accessToken,
       username: body.username,
+      email: validUser.email,
     });
   } catch (e) {
     console.log(e);
@@ -100,29 +100,45 @@ exports.loginUser = async (req, res, next) => {
 };
 
 exports.updateUser = async (req, res, next) => {
+  // Se recupera el id en base al token y el body
   const body = req.body;
-  res.json(body);
+  const tokenDecode = jwt.decode(body.token, process.env.ACCESS_TOKEN_SECRET);
 
-  User.findByIdAndUpdate(
-    req.params.id,
+  const statusUpdate = await User.findByIdAndUpdate(
+    tokenDecode.id,
     { number: body.telephone, bio: body.bio, name: body.name },
     { runValidators: true, new: true }
-  ).then((updateUser) => {
-    res.json(updateUser);
-  });
+  );
 
-  User.findOneAndUpdate(body.username, {
-    ...body,
-    number: body.telephone,
-    bio: body.bio,
-    name: body.name,
-  }).then((updateUser) => {
-    res.json(updateUser);
-  });
+  try {
+    return res.json({
+      statusUpdate,
+    });
+  } catch (e) {
+    console.log("error connecting to MongoDB:", e.message);
+  }
+
+  // User.findOneAndUpdate(body.username, {
+  //   ...body,
+  //   number: body.telephone,
+  //   bio: body.bio,
+  //   name: body.name,
+  // }).then((updateUser) => {
+  //   console.log("body2");
+  //   res.json(updateUser);
+  // });
 };
 
 exports.readUser = async (req, res, next) => {
   const { params = {} } = req;
-  const data = await User.findById(params.id);
-  res.json({ data });
+  const tokenDecode = jwt.decode(params.token, process.env.ACCESS_TOKEN_SECRET);
+  const data = await User.findById(tokenDecode.id);
+
+  try {
+    return res.json({
+      data,
+    });
+  } catch (e) {
+    console.log("error connecting to MongoDB:", e.message);
+  }
 };

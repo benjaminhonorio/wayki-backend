@@ -26,7 +26,7 @@ const userFields = {
   bio: {
     type: String,
   },
-  photo: {
+  token: {
     type: String,
   },
 };
