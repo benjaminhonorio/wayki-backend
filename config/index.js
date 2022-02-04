@@ -11,7 +11,6 @@ const config = {
     username: process.env.MONGODB_USER,
     password: process.env.MONGODB_PASSWORD,
   },
-  SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
   pagination: {
     limit: 10,
     skip: 0,

@@ -1,5 +1,6 @@
 const { logger } = require("../utils/logger");
 const { v4: uuidv4 } = require("uuid");
+const jwt = require("jsonwebtoken");
 
 const requestId = (req, res, next) => {
   const { headers } = req;
@@ -32,8 +33,49 @@ const errorHandler = (error, req, res, next) => {
   res.status(status).json({ message, error });
 };
 
+// Verify JWT Token
+const authToken = (req, res, next) => {
+  let token = req.headers.authorization || req.headers.query || "";
+
+  if (token.startsWith("Bearer")) {
+    token = token.substring(7);
+  }
+
+  if (!token)
+    next({
+      error: true,
+      message: "Acceso denegado - No hay token",
+    });
+
+  try {
+    const verified = jwt.verify(
+      token,
+      process.env.TOKEN_SECRET,
+      (err, decoded) => {
+        if (err) {
+          next({
+            error: true,
+            message: "Acceso denegado - Token Invalido",
+          });
+        } else {
+          req.decoded = decoded;
+          next();
+        }
+      }
+    );
+    req.validUser = verified;
+    next();
+  } catch (error) {
+    next({
+      error: true,
+      message: "Acceso denegado - No hay token",
+    });
+  }
+};
+
 module.exports = {
   requestId,
   unknownEndpoint,
   errorHandler,
+  authToken,
 };

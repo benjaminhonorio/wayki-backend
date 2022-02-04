@@ -26,9 +26,6 @@ const userFields = {
   bio: {
     type: String,
   },
-  token: {
-    type: String,
-  },
 };
 
 const userSchema = new mongoose.Schema(userFields, { timestamps: true });
