@@ -11,5 +11,6 @@ router
 
 router.route("/:id/update/hidden").put(controller.updateHidden);
 router.route("/:id/update/promoted").put(controller.updatePromoted);
+router.route("/myposts/:username").get(controller.readPostByUser);
 
 module.exports = router;

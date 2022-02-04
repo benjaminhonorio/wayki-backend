@@ -1,3 +1,4 @@
+const { required } = require("@hapi/joi/lib/base");
 const { Post, postFields } = require("../models/post");
 const {
   paginationParams,
@@ -6,6 +7,7 @@ const {
   filterOption,
 } = require("../utils");
 require("express-async-errors");
+// const uploadTocloudinary = required("../utils/uploadToCloudinary.js");
 
 exports.all = async (req, res, next) => {
   const { limit, page, skip } = paginationParams(req.query);
@@ -75,5 +77,10 @@ exports.updatePromoted = async (req, res, next) => {
     { promoted: body.promoted },
     { runValidators: true, new: true }
   );
+  res.json({ data });
+};
+exports.readPostByUser = async (req, res, next) => {
+  const { params = {} } = req;
+  const data = await Post.find({ username: params.username });
   res.json({ data });
 };
