@@ -4,6 +4,8 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Joi = require("@hapi/joi");
+const { update } = require("./posts");
+const { welcomeEmail, changePassword } = require("../utils/mail");
 
 const schemaRegister = Joi.object({
   username: Joi.string().min(6).max(30).required(),
@@ -15,17 +17,20 @@ const schemaLogin = Joi.object({
   username: Joi.string().min(6).max(30).required(),
   pwd: Joi.string().min(6).max(30).required(),
 });
-// const { run } = require("../utils/mail");
+
+const schemaEmailRecovery = Joi.object({
+  email: Joi.string().required().email(),
+});
+
+const schemaResetPassword = Joi.object({
+  newPwd: Joi.string().min(6).max(30).required(),
+  id: Joi.string(),
+});
 
 exports.all = async (req, res, next) => {
   const dataUsers = await User.find({});
   res.json({ dataUsers });
 };
-
-// function generateAccessToken(user) {
-//   const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
-//   return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "10m" });
-// }
 
 exports.createUser = async (req, res, next) => {
   const { error, value } = schemaRegister.validate(req.body);
@@ -53,14 +58,23 @@ exports.createUser = async (req, res, next) => {
     pwd: hashedPassword,
     email: body.email,
   });
+  const savedUser = await user.save();
+  welcomeEmail(body.username, body.email);
+  // delete savedUser.pwd;
+  const accessToken = jwt.sign(
+    {
+      username: user.username,
+      id: user._id,
+      email: user.email,
+    },
+    process.env.ACCESS_TOKEN_SECRET
+  );
 
-  try {
-    const savedUser = await user.save();
-    // run(body.username, body.email);
-    return res.json(savedUser);
-  } catch (error) {
-    return res.json(error);
-  }
+  return res.json({
+    token: accessToken,
+    username: savedUser.username,
+    id: savedUser._id,
+  });
 };
 
 exports.loginUser = async (req, res, next) => {
@@ -84,17 +98,69 @@ exports.loginUser = async (req, res, next) => {
     {
       username: validUser.username,
       id: validUser._id,
+      email: validUser.email,
     },
     process.env.ACCESS_TOKEN_SECRET
   );
 
   try {
-    console.log("success");
     return res.json({
       token: accessToken,
-      username: body.username,
+      username: validUser.username,
+      id: validUser._id,
     });
   } catch (e) {
-    console.log(e);
+    next(e);
+  }
+};
+
+exports.emailRecovery = async (req, res, next) => {
+  const { error, value } = schemaEmailRecovery.validate(req.body);
+  if (error) {
+    return res.json({ error: true, message: error.details[0].message });
+  }
+
+  const body = value;
+  const validUser = await User.findOne({ email: body.email });
+
+  if (!validUser)
+    return res.json({
+      error: true,
+      message: "Éste email no está asociado a ningún usuario",
+    });
+
+  try {
+    changePassword(validUser.username, validUser.email, validUser._id);
+    return res.json({
+      error: false,
+      id: validUser._id,
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
+exports.resetPassword = async (req, res, next) => {
+  const { error, value } = schemaResetPassword.validate(req.body);
+  if (error) {
+    return res.json({ error: true, message: error.details[0].message });
+  }
+
+  const body = value;
+
+  const hashedPassword = bcrypt.hash(body.newPwd, 10);
+
+  try {
+    await User.findByIdAndUpdate(
+      body.id,
+      {
+        pwd: hashedPassword,
+      },
+      { runValidators: true, new: true }
+    ).then((updatedUser) => {
+      res.json(updatedUser);
+    });
+  } catch (e) {
+    next(e);
   }
 };
