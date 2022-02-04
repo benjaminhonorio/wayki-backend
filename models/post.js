@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 
 const postFields = {
+  username: {
+    type: String,
+  },
   title: {
     type: String,
     required: [true, "Por favor indica el titulo"],
