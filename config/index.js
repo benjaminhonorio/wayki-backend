@@ -11,7 +11,6 @@ const config = {
     username: process.env.MONGODB_USER,
     password: process.env.MONGODB_PASSWORD,
   },
-  
   pagination: {
     limit: 10,
     skip: 0,

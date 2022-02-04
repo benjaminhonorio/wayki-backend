@@ -65,6 +65,7 @@ exports.createUser = async (req, res, next) => {
     {
       username: user.username,
       id: user._id,
+      email: user.email,
     },
     process.env.ACCESS_TOKEN_SECRET
   );
@@ -97,19 +98,19 @@ exports.loginUser = async (req, res, next) => {
     {
       username: validUser.username,
       id: validUser._id,
+      email: validUser.email,
     },
     process.env.ACCESS_TOKEN_SECRET
   );
 
   try {
-    console.log("success");
     return res.json({
       token: accessToken,
       username: validUser.username,
       id: validUser._id,
     });
   } catch (e) {
-    console.log(e);
+    next(e);
   }
 };
 
@@ -120,9 +121,7 @@ exports.emailRecovery = async (req, res, next) => {
   }
 
   const body = value;
-  console.log(value);
   const validUser = await User.findOne({ email: body.email });
-  console.log(validUser);
 
   if (!validUser)
     return res.json({
@@ -137,7 +136,7 @@ exports.emailRecovery = async (req, res, next) => {
       id: validUser._id,
     });
   } catch (e) {
-    console.log(e);
+    next(e);
   }
 };
 
@@ -149,10 +148,10 @@ exports.resetPassword = async (req, res, next) => {
 
   const body = value;
 
-  const hashedPassword = await bcrypt.hash(body.newPwd, 10);
+  const hashedPassword = bcrypt.hash(body.newPwd, 10);
 
   try {
-    User.findByIdAndUpdate(
+    await User.findByIdAndUpdate(
       body.id,
       {
         pwd: hashedPassword,
@@ -161,7 +160,7 @@ exports.resetPassword = async (req, res, next) => {
     ).then((updatedUser) => {
       res.json(updatedUser);
     });
-  } catch (error) {
-    return res.json(error);
+  } catch (e) {
+    next(e);
   }
 };
