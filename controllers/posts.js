@@ -1,5 +1,5 @@
-const { required } = require("@hapi/joi/lib/base");
 const { Post, postFields } = require("../models/post");
+const User = require("../models/user");
 const {
   paginationParams,
   sortParams,
@@ -7,9 +7,9 @@ const {
   filterOption,
 } = require("../utils");
 require("express-async-errors");
-// const uploadTocloudinary = required("../utils/uploadToCloudinary.js");
 
 exports.all = async (req, res, next) => {
+  // TODO: remove or keep pagination
   const { limit, page, skip } = paginationParams(req.query);
 
   const { sortBy, direction } = sortParams(req.query, postFields);
@@ -17,7 +17,8 @@ exports.all = async (req, res, next) => {
   const docs = Post.find(filterOption(req.query))
     .sort(sortParamToString(sortBy, direction))
     .skip(skip)
-    .limit(limit);
+    .limit(limit)
+    .populate("user", { username: 1, email: 1 });
   const allData = Post.countDocuments();
   const response = await Promise.all([docs.exec(), allData.exec()]);
   const [data, total] = response;
@@ -26,9 +27,12 @@ exports.all = async (req, res, next) => {
 };
 
 exports.create = async (req, res, next) => {
-  const { body = {} } = req;
-  const post = new Post(body);
+  const { body = {}, decodedUser = {} } = req;
+  const user = await User.findById(decodedUser.id);
+  const post = new Post({ ...body, user: user._id });
   const data = await post.save();
+  user.posts = user.posts.concat(data.id);
+  await user.save();
   res.status(201).json({ data });
 };
 
@@ -47,6 +51,7 @@ exports.delete = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   const { params = {}, body = {} } = req;
   const post = body;
+  // Handle forbidden updates (only "admins" could do this)
   if ("hidden" in post) delete post.hidden;
   if ("promoted" in post) delete post.promoted;
   const data = await Post.findByIdAndUpdate(params.id, post, {
@@ -77,10 +82,5 @@ exports.updatePromoted = async (req, res, next) => {
     { promoted: body.promoted },
     { runValidators: true, new: true }
   );
-  res.json({ data });
-};
-exports.readPostByUser = async (req, res, next) => {
-  const { params = {} } = req;
-  const data = await Post.find({ username: params.username });
   res.json({ data });
 };

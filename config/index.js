@@ -33,6 +33,7 @@ const config = {
     apiKey: process.env.CLOUDINARY_API_KEY,
     apiSecret: process.env.CLOUDINARY_API_SECRET,
   },
+  ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
 };
 
 module.exports = config;

@@ -1,11 +1,10 @@
-require("dotenv").config();
 require("express-async-errors");
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Joi = require("@hapi/joi");
-const { update } = require("./posts");
 const { welcomeEmail, changePassword } = require("../utils/mail");
+const config = require("../config");
 
 const schemaRegister = Joi.object({
   username: Joi.string().min(6).max(30).required(),
@@ -28,17 +27,23 @@ const schemaResetPassword = Joi.object({
 });
 
 exports.all = async (req, res, next) => {
-  const dataUsers = await User.find({});
-  res.json({ dataUsers });
+  const data = await User.find({}).populate("posts");
+  res.json({ data });
+};
+
+// Get user for profile
+exports.me = async (req, res, next) => {
+  const { decodedUser = {} } = req;
+  const user = await User.findById(decodedUser.id);
+  res.json(user);
 };
 
 exports.createUser = async (req, res, next) => {
-  const { error, value } = schemaRegister.validate(req.body);
+  const { error, value: body } = schemaRegister.validate(req.body);
   if (error) {
     return res.json({ error: true, message: error.details[0].message });
   }
 
-  const body = value;
   const emailNotUnique = await User.findOne({ email: body.email });
   const usernameNotUnique = await User.findOne({ username: body.username });
 
@@ -60,32 +65,32 @@ exports.createUser = async (req, res, next) => {
   });
   const savedUser = await user.save();
   welcomeEmail(body.username, body.email);
-  // delete savedUser.pwd;
   const accessToken = jwt.sign(
     {
       username: user.username,
       id: user._id,
       email: user.email,
     },
-    process.env.ACCESS_TOKEN_SECRET
+    config.ACCESS_TOKEN_SECRET
   );
 
   return res.json({
     token: accessToken,
     username: savedUser.username,
+    email: savedUser.email,
     id: savedUser._id,
   });
 };
 
 exports.loginUser = async (req, res, next) => {
-  const { error, value } = schemaLogin.validate(req.body);
+  const { error, value: body } = schemaLogin.validate(req.body);
   if (error) {
     return res.json({ error: true, message: error.details[0].message });
   }
 
-  const body = value;
-
-  const validUser = await User.findOne({ username: body.username });
+  const validUser = await User.findOne({ username: body.username }).populate(
+    "posts"
+  );
   if (!validUser)
     return res.json({ error: true, message: "Nombre de usuario incorrecto" });
 
@@ -100,28 +105,23 @@ exports.loginUser = async (req, res, next) => {
       id: validUser._id,
       email: validUser.email,
     },
-    process.env.ACCESS_TOKEN_SECRET
+    config.ACCESS_TOKEN_SECRET
   );
 
-  try {
-    return res.json({
-      token: accessToken,
-      email: validUser.email,
-      username: validUser.username,
-      id: validUser._id,
-    });
-  } catch (e) {
-    next(e);
-  }
+  res.json({
+    token: accessToken,
+    email: validUser.email,
+    username: validUser.username,
+    id: validUser._id,
+    posts: validUser.posts,
+  });
 };
 
 exports.emailRecovery = async (req, res, next) => {
-  const { error, value } = schemaEmailRecovery.validate(req.body);
+  const { error, value: body } = schemaEmailRecovery.validate(req.body);
   if (error) {
     return res.json({ error: true, message: error.details[0].message });
   }
-
-  const body = value;
   const validUser = await User.findOne({ email: body.email });
 
   if (!validUser)
@@ -130,82 +130,33 @@ exports.emailRecovery = async (req, res, next) => {
       message: "Éste email no está asociado a ningún usuario",
     });
 
-  try {
-    changePassword(validUser.username, validUser.email, validUser._id);
-    return res.json({
-      error: false,
-      id: validUser._id,
-    });
-  } catch (e) {
-    next(e);
-  }
+  changePassword(validUser.username, validUser.email, validUser._id);
+  res.json({
+    error: false,
+    id: validUser._id,
+  });
 };
 
 exports.resetPassword = async (req, res, next) => {
-  const { error, value } = schemaResetPassword.validate(req.body);
+  const { error, value: body } = schemaResetPassword.validate(req.body);
   if (error) {
     return res.json({ error: true, message: error.details[0].message });
   }
-
-  const body = value;
-
   const hashedPassword = bcrypt.hash(body.newPwd, 10);
 
-  try {
-    await User.findByIdAndUpdate(
-      body.id,
-      {
-        pwd: hashedPassword,
-      },
-      { runValidators: true, new: true }
-    ).then((updatedUser) => {
-      res.json(updatedUser);
-    });
-  } catch (e) {
-    next(e);
-  }
+  const updatedUser = await User.findByIdAndUpdate(
+    body.id,
+    { pwd: hashedPassword },
+    { runValidators: true, new: true }
+  );
+  res.json(updatedUser);
 };
 
 exports.updateUser = async (req, res, next) => {
-  // Se recupera el id en base al token y el body
-  const body = req.body;
-  const tokenDecode = jwt.decode(body.token, process.env.ACCESS_TOKEN_SECRET);
-
-  const statusUpdate = await User.findByIdAndUpdate(
-    tokenDecode.id,
-    { number: body.telephone, bio: body.bio, name: body.name },
-    { runValidators: true, new: true }
-  );
-
-  try {
-    return res.json({
-      statusUpdate,
-    });
-  } catch (e) {
-    console.log("error connecting to MongoDB:", e.message);
-  }
-
-  // User.findOneAndUpdate(body.username, {
-  //   ...body,
-  //   number: body.telephone,
-  //   bio: body.bio,
-  //   name: body.name,
-  // }).then((updateUser) => {
-  //   console.log("body2");
-  //   res.json(updateUser);
-  // });
-};
-
-exports.readUser = async (req, res, next) => {
-  const { params = {} } = req;
-  const tokenDecode = jwt.decode(params.token, process.env.ACCESS_TOKEN_SECRET);
-  const data = await User.findById(tokenDecode.id);
-
-  try {
-    return res.json({
-      data,
-    });
-  } catch (e) {
-    console.log("error connecting to MongoDB:", e.message);
-  }
+  const { decodedUser = {} } = req;
+  const updatedUser = await User.findByIdAndUpdate(decodedUser.id, req.body, {
+    runValidators: true,
+    new: true,
+  });
+  res.json(updatedUser);
 };
