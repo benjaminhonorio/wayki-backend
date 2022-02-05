@@ -26,6 +26,12 @@ const userFields = {
   bio: {
     type: String,
   },
+  posts: [
+    {
+      type: mongoose.Types.ObjectId,
+      ref: "Post",
+    },
+  ],
 };
 
 const userSchema = new mongoose.Schema(userFields, { timestamps: true });
@@ -35,7 +41,7 @@ userSchema.set("toJSON", {
     returnedObject.id = returnedObject._id.toString();
     delete returnedObject._id;
     delete returnedObject.__v;
-    // delete returnedObject.password;
+    delete returnedObject.pwd;
   },
 });
 
