@@ -13,6 +13,8 @@ Content-Type: application/json
         "size": "XL"
     },
     "location": {
+        "address": "anything",
+        "type": "Point",
         "reference": "Plaza Mayor de Nuevo Chimbote",
         "coordinates": [-78.52001851957706,-9.127000168554577]
     },

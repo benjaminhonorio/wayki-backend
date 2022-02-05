@@ -1,9 +1,6 @@
 const mongoose = require("mongoose");
 
 const postFields = {
-  username: {
-    type: String,
-  },
   title: {
     type: String,
     required: [true, "Por favor indica el titulo"],
@@ -103,11 +100,11 @@ const postFields = {
     type: Boolean,
     default: false,
   },
-  // user: {
-  //   type: mongoose.Types.ObjectId,
-  //   ref: "User",
-  //   required: [true, "Por favor indica el usuario"],
-  // },
+  user: {
+    type: mongoose.Types.ObjectId,
+    ref: "User",
+    required: [true, "Por favor indica el usuario"],
+  },
 };
 
 const postSchema = new mongoose.Schema(postFields, { timestamps: true });
