@@ -142,7 +142,7 @@ exports.resetPassword = async (req, res, next) => {
   if (error) {
     return res.json({ error: true, message: error.details[0].message });
   }
-  const hashedPassword = bcrypt.hash(body.newPwd, 10);
+  const hashedPassword = await bcrypt.hash(body.newPwd, 10);
 
   const updatedUser = await User.findByIdAndUpdate(
     body.id,
