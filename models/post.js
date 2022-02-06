@@ -109,6 +109,12 @@ const postFields = {
 
 const postSchema = new mongoose.Schema(postFields, { timestamps: true });
 
+postSchema.post("save", function (doc, next) {
+  doc.populate("user", { username: 1, email: 1, number: 1 }).then(function () {
+    next();
+  });
+});
+
 postSchema.set("toJSON", {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString();
