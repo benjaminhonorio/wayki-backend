@@ -18,7 +18,7 @@ exports.all = async (req, res, next) => {
     .sort(sortParamToString(sortBy, direction))
     .skip(skip)
     .limit(limit)
-    .populate("user", { username: 1, email: 1 });
+    .populate("user", { username: 1, email: 1, number: 1 });
   const allData = Post.countDocuments();
   const response = await Promise.all([docs.exec(), allData.exec()]);
   const [data, total] = response;
