@@ -26,6 +26,7 @@ const userFields = {
   bio: {
     type: String,
   },
+  photo: String,
   posts: [
     {
       type: mongoose.Types.ObjectId,
