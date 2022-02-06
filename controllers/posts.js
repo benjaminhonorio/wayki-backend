@@ -9,21 +9,50 @@ const {
 require("express-async-errors");
 
 exports.all = async (req, res, next) => {
-  // TODO: remove or keep pagination
+  // TODO: refactor
   const { limit, page, skip } = paginationParams(req.query);
-
   const { sortBy, direction } = sortParams(req.query, postFields);
-
-  const docs = Post.find(filterOption(req.query))
-    .sort(sortParamToString(sortBy, direction))
-    .skip(skip)
-    .limit(limit)
-    .populate("user", { username: 1, email: 1, number: 1 });
-  const allData = Post.countDocuments();
-  const response = await Promise.all([docs.exec(), allData.exec()]);
-  const [data, total] = response;
-  const pages = Math.ceil(total / limit);
-  res.json({ data, meta: { limit, skip, total, page, pages } });
+  const { neLat, neLng, swLat, swLng } = req.query;
+  if ([neLat, neLng, swLat, swLng].every((el) => el !== undefined)) {
+    const bounds = {
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [neLng, swLat],
+            [swLng, swLat],
+            [swLng, neLat],
+            [neLng, neLat],
+            [neLng, swLat],
+          ],
+        ],
+      },
+    };
+    const docs = Post.find({
+      ...filterOption(req.query),
+      location: { $geoWithin: { $geometry: bounds.geometry } },
+    })
+      .sort(sortParamToString(sortBy, direction))
+      .skip(skip)
+      .limit(limit)
+      .populate("user", { username: 1, email: 1, number: 1 });
+    const allData = Post.countDocuments();
+    const response = await Promise.all([docs.exec(), allData.exec()]);
+    const [data, total] = response;
+    const pages = Math.ceil(total / limit);
+    res.json({ data, meta: { limit, skip, total, page, pages } });
+  } else {
+    const docs = Post.find(filterOption(req.query))
+      .sort(sortParamToString(sortBy, direction))
+      .skip(skip)
+      .limit(limit)
+      .populate("user", { username: 1, email: 1, number: 1 });
+    const allData = Post.countDocuments();
+    const response = await Promise.all([docs.exec(), allData.exec()]);
+    const [data, total] = response;
+    const pages = Math.ceil(total / limit);
+    res.json({ data, meta: { limit, skip, total, page, pages } });
+  }
 };
 
 exports.create = async (req, res, next) => {
