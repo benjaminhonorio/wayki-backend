@@ -149,7 +149,7 @@ exports.resetPassword = async (req, res, next) => {
     { pwd: hashedPassword },
     { runValidators: true, new: true }
   );
-  return res.json(updatedUser);
+  res.json(updatedUser);
 };
 
 exports.updateUser = async (req, res, next) => {
