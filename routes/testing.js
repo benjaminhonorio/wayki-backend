@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const controller = require("../controllers/testing");
 
-router.route("/cleandb").get(controller.cleanDatabase);
+router.route("/cleandb").post(controller.cleanDatabase);
 
 module.exports = router;

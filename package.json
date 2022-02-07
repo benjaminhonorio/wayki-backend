@@ -6,8 +6,7 @@
   "scripts": {
     "start": "cross-env NODE_ENV=production node index",
     "dev": "cross-env NODE_ENV=development nodemon index",
-    "test": "cross-env NODE_ENV=test jest --verbose --runInBand",
-    "start:test": "cross-env NODE_ENV=test nodemon index",
+    "test": "cross-env NODE_ENV=test nodemon index",
     "lint": "eslint ."
   },
   "keywords": [],
