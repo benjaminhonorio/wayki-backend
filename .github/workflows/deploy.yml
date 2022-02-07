@@ -39,7 +39,7 @@ jobs:
         run: npm test
 
       - name: Deploy to Heroku
-        if: github.ref == "refs/heads/main"
+        if: github.ref == 'refs/heads/main'
         uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
