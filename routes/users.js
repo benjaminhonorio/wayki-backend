@@ -14,4 +14,6 @@ router.route("/login").post(controller.loginUser);
 
 router.route("/profile").put(authToken, controller.updateUser);
 
+router.route("/myposts/:id").get(authToken, controller.myPosts);
+
 module.exports = router;

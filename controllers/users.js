@@ -113,7 +113,6 @@ exports.loginUser = async (req, res, next) => {
     email: validUser.email,
     username: validUser.username,
     id: validUser._id,
-    posts: validUser.posts,
   });
 };
 
@@ -159,4 +158,11 @@ exports.updateUser = async (req, res, next) => {
     new: true,
   });
   res.json(updatedUser);
+};
+
+exports.myPosts = async (req, res, next) => {
+  const id = req.params.id;
+  const user = await User.findById(id).populate("posts");
+  const { posts: userPosts } = user;
+  res.json(userPosts);
 };
