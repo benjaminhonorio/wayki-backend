@@ -1,0 +1,47 @@
+name: Deploy backend
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  MONGODB_PROTOCOL: "mongodb+srv"
+  MONGODB_USER: ${{ secrets.MONGODB_USER }}
+  MONGODB_PASSWORD: ${{ secrets.MONGODB_PASSWORD }}
+  TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+      # Get code from repo
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Install NodeJS
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+
+      # Run npm install
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Tests
+        run: npm test
+
+      - name: Deploy to Heroku
+        if: github.ref == "refs/heads/main"
+        uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "tranquil-island-60934" #Must be unique in Heroku
+          heroku_email: "benjaminhonorio.12@gmail.com"
