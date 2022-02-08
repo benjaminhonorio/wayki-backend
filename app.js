@@ -11,10 +11,6 @@ app.use(requestId);
 app.use(requestLogger);
 app.use(express.json());
 
-if (process.env.NODE_ENV === "test") {
-  app.use("/test", api);
-}
-
 app.use("/api", api);
 app.use("/api/v1", api);
 
